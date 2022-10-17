@@ -1,0 +1,13 @@
+{
+  "name": "eslint-plugin-arx",
+  "version": "1.0.0",
+  "description": "Eslint plugin to add custom rules",
+  "main": "index.js",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^8.25.0"
+  },
+  "dependencies": {
+    "minimatch": "^5.1.0"
+  }
+}
