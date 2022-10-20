@@ -1,5 +1,6 @@
 const rulesToImport = [
-    'filename-starts-with'
+    'filename-starts-with',
+    'no-use-internals'
 ];
 
 module.exports = {
