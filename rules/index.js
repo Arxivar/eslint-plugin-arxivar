@@ -1,6 +1,7 @@
 const rulesToImport = [
     'filename-starts-with',
-    'no-use-internals'
+    'no-use-internals',
+    'toaster-service-unsafe-methods'
 ];
 
 module.exports = {

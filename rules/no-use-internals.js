@@ -7,9 +7,9 @@ module.exports = {
         return {
             ImportDeclaration(node) {
                 const value = node.source.value;
-                const {folder, message} = options[0];
+                const { folder, message } = options[0];
 
-                if(value.includes(folder) && !value.startsWith(`./${folder}`)) {
+                if (value.includes(folder) && !value.startsWith(`./${folder}`)) {
                     report({ node, message });
                 }
             }
