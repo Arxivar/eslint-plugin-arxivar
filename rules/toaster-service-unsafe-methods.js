@@ -17,7 +17,7 @@ module.exports = {
                     callee.object.type === 'Identifier' &&
                     callee.object.name === 'ToasterService' &&
                     callee.property.type === 'Identifier' &&
-                    callee.property.name === 'infoUnsafe'
+                    (callee.property.name === 'infoUnsafe' || callee.property.name === 'errorUnsafe' || callee.property.name === 'successUnsafe')
                 ) {
                     context.report({
                         node,
