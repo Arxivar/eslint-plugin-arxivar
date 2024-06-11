@@ -20,24 +20,40 @@ module.exports = {
                 ) {
                     const callback = node.arguments[1];
                     if (callback && callback.type === 'ArrowFunctionExpression') {
-                        callback.body.body.forEach(statement => {
-                            if (
-                                statement.type === 'ReturnStatement' &&
-                                statement.argument.type === 'JSXElement'
-                            ) {
-                                const jsxElement = statement.argument;
-                                const hasKey = jsxElement.openingElement.attributes.some(
-                                    attr => attr.type === 'JSXAttribute' && attr.name.name === 'key'
-                                );
+                        if (callback.body.type === 'JSXElement') {
+                            // Handle concise body
+                            const jsxElement = callback.body;
+                            const hasKey = jsxElement.openingElement.attributes.some(
+                                attr => attr.type === 'JSXAttribute' && attr.name.name === 'key'
+                            );
 
-                                if (!hasKey) {
-                                    context.report({
-                                        node: jsxElement,
-                                        message: 'Missing "key" prop in JSX element within a list',
-                                    });
-                                }
+                            if (!hasKey) {
+                                context.report({
+                                    node: jsxElement,
+                                    message: 'Missing "key" prop in JSX element within a list',
+                                });
                             }
-                        });
+                        } else if (callback.body.type === 'BlockStatement') {
+                            // Handle block body
+                            callback.body.body.forEach(statement => {
+                                if (
+                                    statement.type === 'ReturnStatement' &&
+                                    statement.argument.type === 'JSXElement'
+                                ) {
+                                    const jsxElement = statement.argument;
+                                    const hasKey = jsxElement.openingElement.attributes.some(
+                                        attr => attr.type === 'JSXAttribute' && attr.name.name === 'key'
+                                    );
+
+                                    if (!hasKey) {
+                                        context.report({
+                                            node: jsxElement,
+                                            message: 'Missing "key" prop in JSX element within a list',
+                                        });
+                                    }
+                                }
+                            });
+                        }
                     }
                 }
             }
