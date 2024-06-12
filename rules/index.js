@@ -1,5 +1,5 @@
 const rulesToImport = [
-    'filename-starts-with',
+    'no-relative-import',
     'no-use-internals',
     'toaster-service-unsafe-methods',
     'no-missing-key-prop'
