@@ -22,12 +22,9 @@ module.exports = {
                     const importDir = path.dirname(importFullPath);
 
                     const importingFileDir = path.dirname(filename);
+                    const importingFileParentDir = path.dirname(importingFileDir);
 
-                    // Resolve the parent directory of the importing file
-                    const importingFileParentDir = path.resolve(importingFileDir, '..');
-
-                    // Resolve the parent directory of the internals folder
-                    const internalsFolderParentDir = path.resolve(importDir, '..');
+                    const internalsFolderParentDir = path.dirname(importDir);
 
                     if (importingFileParentDir !== internalsFolderParentDir) {
                         context.report({
