@@ -16,7 +16,7 @@ module.exports = {
         }
 
         return {
-            ImportDeclaration(node) {
+            CallExpression(node) {
                 matchedPattern.startWith.forEach((startWithString) => {
                     if (node.source.value.startsWith(startWithString)) {
                         report({
