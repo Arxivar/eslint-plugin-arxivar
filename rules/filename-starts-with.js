@@ -1,31 +1,25 @@
-const minimatch = require('minimatch');
-
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
     meta: {
-        type: 'suggestion',
+        type: 'problem',
+        docs: {
+            description: 'disallow relative parent imports using "../"',
+            category: 'Best Practices',
+            recommended: false,
+        },
+        schema: [], // no options
     },
     create(context) {
-        const { options, report, getFilename } = context;
-        const matchedPattern = options.filter((rule) =>
-            rule.files.some((pattern) => minimatch(getFilename(), `**/${pattern}`)),
-        )?.[0];
-
-        if (!matchedPattern) {
-            return;
-        }
-
         return {
-            CallExpression(node) {
-                matchedPattern.startWith.forEach((startWithString) => {
-                    if (node.source.value.startsWith(startWithString)) {
-                        report({
-                            node,
-                            message: matchedPattern.errorMessage,
-                        });
-                    }
-                });
+            ImportDeclaration(node) {
+                const importPath = node.source.value;
+                if (importPath.startsWith('../')) {
+                    context.report({
+                        node,
+                        message: 'Relative parent imports using "../" are not allowed. Use an alias instead.',
+                    });
+                }
             }
-        }
+        };
     }
-}
+};
