@@ -5,8 +5,8 @@ module.exports = {
     meta: {
         type: 'suggestion',
     },
-    create({ options, report, getFilename }) {
-
+    create(context) {
+        const { options, report, getFilename } = context;
         const matchedPattern = options.filter((rule) =>
             rule.files.some((pattern) => minimatch(getFilename(), `**/${pattern}`)),
         )?.[0];
