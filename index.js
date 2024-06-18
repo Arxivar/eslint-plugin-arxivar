@@ -1,7 +1,7 @@
 const allRules =  require('./rules');
 const configRecommended = require('./configs/recommended');
 
-const plugin = {
+module.exports = {
   meta: {
     name: 'eslint-plugin-arxivar'
   },
@@ -10,9 +10,3 @@ const plugin = {
     recommended: configRecommended
   }
 };
-
-// for ESM
-export default plugin;
-
-// OR for CommonJS
-module.exports = plugin;
