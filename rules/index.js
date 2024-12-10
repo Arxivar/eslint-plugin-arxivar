@@ -1,7 +1,7 @@
 const rulesToImport = [
     'no-relative-import',
     'no-use-internals',
-    'toaster-service-unsafe-methods',
+    'no-methods-allowed',
     'no-missing-key-prop'
 ];
 
