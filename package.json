@@ -1,5 +1,5 @@
 {
-  "name": "eslint-plugin-arx",
+  "name": "eslint-plugin-arxivar",
   "version": "1.0.0",
   "description": "Eslint plugin to add custom rules",
   "main": "index.js",
