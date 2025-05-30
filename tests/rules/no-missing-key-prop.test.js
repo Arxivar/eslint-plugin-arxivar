@@ -21,7 +21,10 @@ ruleTester.run("no-missing-key-prop", rule, {
     },
     {
       code: "_.map(items, item => { return <div key={item.id}>{item.name}</div>; });",
-    },    
+    },
+    { 
+      code: "items.map(item => <div>{item.name}</div>);" 
+    },
     {
       code: "_.map(items, item => item.name);", // Not returning JSX element
     },
@@ -42,33 +45,19 @@ ruleTester.run("no-missing-key-prop", rule, {
     // Code snippets that SHOULD trigger the rule, with expected error messages
     {
       code: "_.map(items, item => <div>{item.name}</div>);",
-      errors: [
-        { message: 'Missing "key" prop in JSX element within a list' },
-      ],
-    },
-    {
-      code: "items.map(item => <div>{item.name}</div>);",
-      errors: [
-        { message: 'Missing "key" prop in JSX element within a list' },
-      ],
+      errors: [{ message: 'Missing "key" prop in JSX element within a list' }],
     },
     {
       code: "_.map(items, item => { return <div>{item.name}</div>; });",
-      errors: [
-        { message: 'Missing "key" prop in JSX element within a list' },
-      ],
+      errors: [{ message: 'Missing "key" prop in JSX element within a list' }],
     },
     {
       code: "_.map(items, (item, index) => { console.log(item); return <div>{item.name}</div>; });",
-      errors: [
-        { message: 'Missing "key" prop in JSX element within a list' },
-      ],
+      errors: [{ message: 'Missing "key" prop in JSX element within a list' }],
     },
     {
       code: "function MyComponent({items}) { return _.map(items, item => <span>{item}</span>); }",
-      errors: [
-        { message: 'Missing "key" prop in JSX element within a list' },
-      ],
+      errors: [{ message: 'Missing "key" prop in JSX element within a list' }],
     },
     {
       code: `
@@ -79,6 +68,6 @@ ruleTester.run("no-missing-key-prop", rule, {
         };
       `,
       errors: [{ message: 'Missing "key" prop in JSX element within a list' }],
-    }
+    },
   ],
 });

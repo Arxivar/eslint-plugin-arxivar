@@ -60,7 +60,8 @@ module.exports = {
         if (
           !(
             node.callee.type === "MemberExpression" &&
-            node.callee.property.name === "map"
+            node.callee.object.name === "_" &&
+            node.callee.property.name === "map" 
           )
         ) {
           return;
