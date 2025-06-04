@@ -45,36 +45,96 @@ module.exports = {
       return program.type === "Program" && program.body.length === 0;
     }
 
-    function hasExpressionBody(program) {
+    // Checks if the program body consists only of "trivial" statements.
+    // Trivial statements are ExpressionStatements with trivial expressions.
+    function isTrivialProgram(program) {
       return (
         program.type === "Program" &&
         program.body.every(
           (statement) =>
             statement.type === "ExpressionStatement" &&
-            isExpressionOrIdentifierOrLiteral(statement.expression)
+            isTrivialExpression(statement.expression)
         )
       );
     }
 
+    // Checks if an AST node represents a "trivial" expression.
+    // Trivial expressions are simple constructs like identifiers, literals,
+    // simple member/call expressions, binary/logical/sequence expressions
+    // composed of other trivial expressions.
+    function isTrivialExpression(node) {
+      if (!node) {
+        return false;
+      }
+      switch (node.type) {
+        case "Identifier":
+        case "Literal":
+        case "TemplateLiteral":
+          return true;
+        case "MemberExpression":
+          return (
+            isTrivialExpression(node.object) &&
+            (!node.computed || isTrivialExpression(node.property))
+          );
+        case "CallExpression":
+          return (
+            isTrivialExpression(node.callee) &&
+            node.arguments.every(isTrivialExpression)
+          );
+        case "UnaryExpression":
+          return isTrivialExpression(node.argument);
+        case "BinaryExpression":
+        case "LogicalExpression":
+        case "AssignmentExpression":
+          return (
+            isTrivialExpression(node.left) && isTrivialExpression(node.right)
+          );
+        case "SequenceExpression":
+          return node.expressions.every(isTrivialExpression);
+        case "ArrowFunctionExpression": {
+          // An ArrowFunctionExpression is trivial if its params are identifiers
+          // and its body is a simple identifier or a simple member expression (e.g., item.id).
+          const paramsAreIdentifiers = node.params.every(
+            (p) => p.type === "Identifier"
+          );
+          let bodyIsSimple = false;
+          if (node.body.type === "Identifier") {
+            bodyIsSimple = true;
+          } else if (
+            node.body.type === "MemberExpression" &&
+            node.body.object.type === "Identifier" &&
+            node.body.property.type === "Identifier" &&
+            !node.body.computed
+          ) {
+            bodyIsSimple = true;
+          }
+          return paramsAreIdentifiers && bodyIsSimple;
+        }
+        case "TaggedTemplateExpression":
+          return (
+            isTrivialExpression(node.tag) && isTrivialExpression(node.quasi)
+          );
+        default:
+          return false;
+      }
+    }
+
     function hasLabeledStatementBody(program) {
-      return (
+      // A program with a single LabeledStatement is considered trivial only if
+      // the body of the LabeledStatement is a simple ExpressionStatement with a trivial expression.
+      if (
         program.type === "Program" &&
         program.body.length === 1 &&
         program.body[0].type === "LabeledStatement"
-      );
-    }
-
-    function isExpressionOrIdentifierOrLiteral(node) {
-      if (node.type === "Identifier") {
-        return true;
-      }
-      if (node.type === "Literal") {
-        return true;
-      }
-      if (node.type === "BinaryExpression") {
+      ) {
+        const statement = program.body[0];
+        // A LabeledStatement is trivial only if its label is NOT 'case' or 'default',
+        // and its body is an ExpressionStatement with a trivial expression.
         return (
-          isExpressionOrIdentifierOrLiteral(node.left) &&
-          isExpressionOrIdentifierOrLiteral(node.right)
+          statement.label.name !== "case" &&
+          statement.label.name !== "default" &&
+          statement.body.type === "ExpressionStatement" &&
+          isTrivialExpression(statement.body.expression)
         );
       }
       return false;
@@ -109,7 +169,7 @@ module.exports = {
           } else {
             blocks.push({
               content: trimmedValue,
-              loc: { ...comment.loc }
+              loc: { ...comment.loc },
             });
           }
           prevLine = comment;
@@ -118,7 +178,7 @@ module.exports = {
       return blocks;
     }
 
-    function wrapContent(content, node) {
+    function wrapContent(content, node) {      
       switch (node?.type) {
         case "ArrayExpression":
           return `let wrapper = [${content}]`;
@@ -145,12 +205,19 @@ module.exports = {
       Program: function () {
         const blocks = toBlocks(comments);
         for (const block of blocks) {
-          const { content, loc } = block;
+          const { content: rawContent, loc } = block; // Renamed to rawContent to avoid confusion
+          const content = rawContent.trim(); // Use trimmed content for checks
 
           // Comments for collapsible regions can be parsed as private
           // properties within class declarations, but they're not
           // commented-out code.
-          if (isRegionComment(content.trim())) { // Trim content for region check
+          if (isRegionComment(content)) {
+            continue;
+          }
+
+          // Check for commented case/default statements using the regex from no-switch-case-commented
+          if (/(?:^|\s)(?:case\s+[^:]*:|default\s*:)/.test(content)) {
+            context.report({ loc, message: "Code commented forbidden" });
             continue;
           }
 
@@ -159,8 +226,8 @@ module.exports = {
           try {
             const program = parseContentInternal(content, currentParserOptions);
             if (
-              !hasEmptyBody(program) &&
-              !hasExpressionBody(program) &&
+              !hasEmptyBody(program) && // Empty program is trivial
+              !isTrivialProgram(program) && // Program with only trivial expressions is trivial
               !hasLabeledStatementBody(program)
             ) {
               context.report({
@@ -168,7 +235,7 @@ module.exports = {
                 message: "Code commented forbidden",
               });
             }
-            continue; // Successfully parsed and evaluated, move to next block
+            continue; // Successfully parsed and considered trivial, move to next block
           } catch (error) {
             // Parsing failed, proceed to try wrapping
           }
@@ -183,6 +250,7 @@ module.exports = {
             try {
               parseContentInternal(wrappedContent, currentParserOptions); // Check if wrapped content parses
               context.report({
+                // If it parses when wrapped, it's likely commented-out code
                 loc,
                 message: "Code commented forbidden",
               });
