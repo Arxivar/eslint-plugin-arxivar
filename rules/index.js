@@ -3,7 +3,8 @@ const rulesToImport = [
     'no-use-internals',
     'no-methods-allowed',
     'no-missing-key-prop',
-    'no-use-style-inline'
+    'no-use-style-inline',
+    'no-commented-code'
 ];
 
 module.exports = {

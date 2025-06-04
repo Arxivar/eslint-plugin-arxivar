@@ -5,5 +5,6 @@ module.exports = {
     "arxivar/no-methods-allowed": 2,
     "arxivar/no-missing-key-prop": 2,
     "arxivar/no-use-style-inline": 2,
+    "arxivar/no-commented-code": 2,
   },
 };
