@@ -32,22 +32,22 @@ ruleTester.run("no-commented-code", rule, {
       code: "/* 12345 */",
     },
     {
-      code: "// $VARIABILE$ => VARIABILE",
-    },
-    {
-      code: "/* $VARIABILE$ => VARIABILE */",
-    },
-    {
       code: "// $VARIABILE$ -> VARIABILE",
     },
     {
       code: "/* $VARIABILE$ -> VARIABILE */",
     },
     {
-      code: "// $VARIABILE$: VARIABILE",
+      code: "// $VARIABILE$ => VARIABILE and more text",
     },
     {
-      code: "/* $VARIABILE$: VARIABILE */",
+      code: "/* $VARIABILE$ => VARIABILE and more text*/",
+    },
+    {
+      code: "// $VARIABILE$: VARIABILE and more text",
+    },
+    {
+      code: "/* $VARIABILE$: VARIABILE and more text*/",
     },
     {
       code: "/**Notification (Receiving) */",
@@ -63,14 +63,6 @@ ruleTester.run("no-commented-code", rule, {
     {
       code: "// foo.bar",
     },
-    // Trivial CallExpression (simple identifier as callee, no args)
-    {
-      code: "// foo()",
-    },
-    // Trivial CallExpression (member expression as callee, simple args)
-    {
-      code: "// foo.bar(baz, 1)",
-    },
     // Trivial UnaryExpression
     {
       code: "// !isValid",
@@ -79,14 +71,6 @@ ruleTester.run("no-commented-code", rule, {
     {
       code: "// count + 1",
     },
-    // Trivial LogicalExpression
-    {
-      code: "// enabled && visible",
-    },
-    // Trivial AssignmentExpression
-    {
-      code: "// isActive = true",
-    },
     // Trivial TemplateLiteral (simple)
     {
       code: "// `hello world`",
@@ -94,7 +78,7 @@ ruleTester.run("no-commented-code", rule, {
     {
       code: "// String.raw`foo`",
     },
-    //  {
+    // {
     //   code: `
     //     switch(type) {
     //       // This is a comment about the case below
@@ -104,7 +88,7 @@ ruleTester.run("no-commented-code", rule, {
     //       default:
     //         return {};
     //     }
-    //   `
+    //   `,
     // },
   ],
   invalid: [
@@ -191,24 +175,78 @@ ruleTester.run("no-commented-code", rule, {
       code: "// import { something } from './module';",
       errors: [{ message: "Code commented forbidden" }],
     },
-    // Commented-out switch case (might be caught by direct parse or wrap)
     {
       code: "/* case 'ACTION_TYPE': return { ...state, loading: true }; */",
       errors: [{ message: "Code commented forbidden" }],
     },
-    // Commented-out switch case (might be caught by direct parse or wrap)
     {
       code: "// case 'ACTION_TYPE': return { ...state, loading: true };",
       errors: [{ message: "Code commented forbidden" }],
     },
-        // {
+    {
+      code: "//deferred.resolve(widgets);",
+      errors: [{ message: "Code commented forbidden" }],
+    },
+    {
+      code: "/* deferred.resolve(widgets); */",
+      errors: [{ message: "Code commented forbidden" }],
+    },
+    // This was previously valid, now invalid due to stricter CallExpression triviality check
+    {
+      code: "// foo.bar(baz, 1)",
+      errors: [{ message: "Code commented forbidden" }],
+    },
+    {
+      code: "// foo()",
+      errors: [{ message: "Code commented forbidden" }],
+    },
+    // Trivial LogicalExpression
+    {
+      code: "// enabled &&",
+      errors: [{ message: "Code commented forbidden" }],
+    },
+    {
+      code: "// enabled && visible",
+      errors: [{ message: "Code commented forbidden" }],
+    },
+    // Trivial AssignmentExpression
+    {
+      code: "// isActive = true",
+      errors: [{ message: "Code commented forbidden" }],
+    },
+    // {
     //   code: `
     //     switch(action.type) {
     //       /* default: return initialState; */
     //       case 'NEW_ACTION': return newState;
     //     }
     //   `,
-    //   errors: [{ messageId: "commentedCase" }],
+    //   errors: [{ message: "Code commented forbidden" }],
     // },
+    // {
+    //   code: `
+    //     switch(action.type) {
+    //       // case 'NEW_ACTION': return newState;
+    //       default: return initialState;
+    //     }
+    //   `,
+    //   errors: [{ message: "Code commented forbidden" }],
+    // },
+    {
+      code: "// $VARIABILE$ => VARIABILE",
+      errors: [{ message: "Code commented forbidden" }],
+    },
+    {
+      code: "/* $VARIABILE$ => VARIABILE */",
+      errors: [{ message: "Code commented forbidden" }],
+    },
+    {
+      code: "// $VARIABILE$: VARIABILE",
+      errors: [{ message: "Code commented forbidden" }],
+    },
+    {
+      code: "/* $VARIABILE$: VARIABILE */",
+      errors: [{ message: "Code commented forbidden" }],
+    },
   ],
 });
