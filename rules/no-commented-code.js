@@ -96,6 +96,8 @@ module.exports = {
           return (
             isTrivialExpression(node.left) && isTrivialExpression(node.right)
           );
+          // BinaryExpressions like "a !== b" are generally non-trivial for commented code.
+          return false;
         case "LogicalExpression":
               // LogicalExpressions like "enabled && visible" are generally non-trivial.
               return false;
