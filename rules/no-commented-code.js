@@ -105,7 +105,11 @@ module.exports = {
           return isTrivialExpression(node.argument);
         case "BinaryExpression":
           // BinaryExpressions like "a !== b" are generally non-trivial for commented code.
-          return false;
+          // Allow 'in' operator with simple operands as potentially trivial,
+          // to handle cases like "// variabili in errore".
+          // Other BinaryExpressions (like comparisons, arithmetic) are generally non-trivial.
+          return node.operator === 'in' && isTrivialExpression(node.left) && isTrivialExpression(node.right);
+        
         case "LogicalExpression":
           // LogicalExpressions like "enabled && visible" are generally non-trivial.
           return false;

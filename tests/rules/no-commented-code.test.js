@@ -13,9 +13,13 @@ const ruleTester = new RuleTester({
 ruleTester.run("no-commented-code", rule, {
   valid: [
     // Code snippets that should NOT trigger the rule
-    // Simple text comment
+    // Simple text comment. "in" isn't js operator
     {
-      code: "// tutto ok",
+      code: "// variabili in errore",
+    },
+    // Simple text comment. "in" isn't js operator
+    {
+      code: "// side of code",
     },
     // Simple text block comment
     {
@@ -84,7 +88,7 @@ ruleTester.run("no-commented-code", rule, {
     // Commented TaggedTemplateExpression (simple - considered trivial)
     {
       code: "// String.raw`foo`",
-    },
+    },    
     // {
     //   code: `
     //     switch(type) {
