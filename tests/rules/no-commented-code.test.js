@@ -106,21 +106,28 @@ ruleTester.run("no-commented-code", rule, {
             // const answer = 54;
             const answer = 42;
     `,
+      output: `
+            
+            const answer = 42;
+    `,
       errors: [{ message: "Code commented forbidden" }],
     },
     // Commented-out constant declaration in a block comment
     {
       code: "/* const ok = false; */",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // Commented-out standard function declaration
     {
       code: "// function foo() { return true; }",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // Commented-out class declaration in a block comment
     {
       code: "/* class MyClass { constructor() {} } */",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // Commented-out if statement block
@@ -128,7 +135,8 @@ ruleTester.run("no-commented-code", rule, {
       code: `
       // if (condition) {
       //   doSomething();
-      // }
+      // }`,
+      output: `
       `,
       errors: [{ message: "Code commented forbidden" }],
     },
@@ -139,96 +147,115 @@ ruleTester.run("no-commented-code", rule, {
         console.log(i);
       }
       */`,
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // Commented-out variable (let) declaration with assignment
     {
       code: "// let count = 0;",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // Commented-out variable (var) declaration with assignment in a block comment
     {
       code: "/* var total = 100; */",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // Commented-out arrow function (concise body, member expression)
     {
       code: "/* const getName = item => item.name; */",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // Commented-out arrow function (concise body, member expression, no semicolon)
     {
       code: "/* const getName = item => item.name */",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // Commented-out arrow function with a block body
     {
       code: "// const greet = () => { console.log('Hello'); }",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // Commented-out arrow function with a CallExpression body (considered non-trivial)
     {
       code: "// const callComplex = () => anotherFunction(param1, param2.prop);",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // Commented-out object literal assignment
     {
       code: "/* const config = { enabled: true, mode: 'test' }; */",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // Commented-out array literal assignment
     {
       code: "// const numbers = [1, 2, 3, 4];",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // Commented-out import (might be caught by direct parse or wrap)
     {
       code: "// import { something } from './module';",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // Commented-out switch case statement (block comment)
     {
       code: "/* case 'ACTION_TYPE': return { ...state, loading: true }; */",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // Commented-out switch case statement (line comment)
     {
       code: "// case 'ACTION_TYPE': return { ...state, loading: true };",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // Commented-out CallExpression with arguments
     {
       code: "//deferred.resolve(widgets);",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // Commented-out CallExpression with arguments (block comment)
     {
       code: "/* deferred.resolve(widgets); */",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // Commented-out CallExpression (MemberExpression as callee, with arguments)
     {
       code: "// foo.bar(baz, 1)",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // Commented-out CallExpression (Identifier as callee, no arguments)
     {
       code: "// foo()",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // Commented-out incomplete LogicalExpression (binary operator at the end)
     {
       code: "// enabled &&",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // Commented-out LogicalExpression
     {
       code: "// enabled && visible",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // Commented-out AssignmentExpression
     {
       code: "// isActive = true",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // --- Start: Tests for switch cases (currently commented out in test file) ---
@@ -236,6 +263,12 @@ ruleTester.run("no-commented-code", rule, {
     //   code: `
     //     switch(action.type) {
     //       /* default: return initialState; */
+    //       case 'NEW_ACTION': return newState;
+    //     }
+    //   `,
+    //   output: `
+    //     switch(action.type) {
+          
     //       case 'NEW_ACTION': return newState;
     //     }
     //   `,
@@ -248,47 +281,61 @@ ruleTester.run("no-commented-code", rule, {
     //       default: return initialState;
     //     }
     //   `,
+    //   output: `
+    //     switch(action.type) {
+          
+    //       default: return initialState;
+    //     }
+    //   `,
     //   errors: [{ message: "Code commented forbidden" }],
     // },
     // --- End: Tests for switch cases ---
     // Commented-out ArrowFunctionExpression (simple identifiers)
     {
       code: "// $VARIABILE$ => VARIABILE",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // Commented-out ArrowFunctionExpression (simple identifiers, block comment)
     {
       code: "/* $VARIABILE$ => VARIABILE */",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // Commented-out LabeledStatement (label with '$' and Identifier body)
     {
       code: "// $VARIABILE$: VARIABILE",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // Commented-out LabeledStatement (label with '$' and Identifier body, block comment)
     {
       code: "/* $VARIABILE$: VARIABILE */",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // Commented-out BinaryExpression (comparison)
     {
       code: "// cutItem.params.id !== customPasteParams.stateParams.id",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // Commented-out BinaryExpression (comparison, block comment)
     {
       code: "/* cutItem.params.id !== customPasteParams.stateParams.id */",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // Trivial BinaryExpression
     {
       code: "// count + 1",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
     // Commented-out BinaryExpression (arithmetic, block comment)
     {
       code: "/* count + 1*/",
+      output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
   ],

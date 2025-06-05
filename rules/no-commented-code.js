@@ -242,6 +242,15 @@ module.exports = {
           const { content: rawContent, loc } = block;
           const content = rawContent.trim(); // Use trimmed content for checks
 
+          // Define the fix function for the current block.
+          // This function will be passed to context.report if an issue is found.
+          const fix = (fixer) => {
+            const startIndex = sourceCode.getIndexFromLoc(loc.start);
+            const endIndex = sourceCode.getIndexFromLoc(loc.end);
+            // Ensure the range is valid before attempting to remove.
+            return fixer.removeRange([startIndex, endIndex]);
+          };
+
           // Comments for collapsible regions can be parsed as private
           // properties within class declarations, but they're not
           // commented-out code.
@@ -252,7 +261,7 @@ module.exports = {
           // Early check for commented 'case' or 'default' statements using a regex.
           // This is a specific pattern often found in commented-out switch logic.
           if (/(?:^|\s)(?:case\s+[^:]*:|default\s*:)/.test(content)) {
-            context.report({ loc, message: "Code commented forbidden" });
+            context.report({ loc, message: "Code commented forbidden", fix });
             continue;
           }
 
@@ -268,6 +277,7 @@ module.exports = {
               context.report({
                 loc,
                 message: "Code commented forbidden",
+                fix,
               });
             }
             continue; // Successfully parsed and considered trivial, move to next block
@@ -276,7 +286,7 @@ module.exports = {
             // Heuristic: If content ends with common binary/logical operators (preceded by space),
             // it might be an incomplete but intentional piece of commented code (e.g., "// enabled &&").
             if (/\s(&&|\|\||[!=]==?|\*|\+|\/|-|%)\s*$/.test(content)) {
-              context.report({ loc, message: "Code commented forbidden" });
+              context.report({ loc, message: "Code commented forbidden", fix });
               continue;
             }
           }
@@ -294,8 +304,11 @@ module.exports = {
                 // If it parses successfully when wrapped, it's considered commented-out code.
                 loc,
                 message: "Code commented forbidden",
+                fix,
               });
-            } catch (error) {}
+            } catch (error) {
+              // If parsing the wrapped content also fails, do nothing.
+            }
           }
         }
       },
