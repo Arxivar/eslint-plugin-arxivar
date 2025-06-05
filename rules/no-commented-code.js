@@ -85,20 +85,19 @@ module.exports = {
           );
         case "CallExpression": {
           // e.g., func(), obj.method()
-          // Specific check for "PascalCase(PascalCase)" pattern, often used for descriptive comments.
-
-          const callee = node.callee;
-          // Allow "PascalCaseName(PascalCaseArgument)" as trivial, e.g., "Notification(Receiving)"
-          if (callee.type === "Identifier" && /^[A-Z]/.test(callee.name)) {
-            if (
-              node.arguments.length === 1 &&
-              node.arguments[0].type === "Identifier" &&
-              /^[A-Z]/.test(node.arguments[0].name)
-            ) {
-              return true;
-            }
+          // Allow CallExpression with a Literal callee if arguments are trivial.
+          // This handles cases like "1(enumService)" which parsers interpret as a CallExpression.
+          // If a comment parses as any other CallExpression and wasn't caught by
+          // the specific "identifier <space> (identifier)" regex, it's likely actual commented-out code.
+           const callee = node.callee;
+          if (
+            callee.type === "Literal" &&
+            node.arguments.every(isTrivialExpression)
+          ) {
+            return true;
           }
-          return false; // Other CallExpressions are non-trivial
+          // Otherwise, most CallExpressions are considered non-trivial (commented-out code).
+          return false;
         }
         case "UnaryExpression":
           // e.g., !isValid, +count
@@ -260,6 +259,15 @@ module.exports = {
           // commented-out code.
           if (isRegionComment(content)) {
             continue;
+          }
+
+          // Specific pattern for "identifier<space>(identifier)" to be simple text.
+          // This handles cases like "// word (description)" which might otherwise be parsed as non-trivial calls,
+          // distinguishing them from "word(codeCall)" by the presence of a space.
+          // Regex matches: IDENTIFIER<one-or-more-spaces>(IDENTIFIER)
+          const descriptiveIdentifierCallPattern = /^[a-zA-Z_$][\w$]*\s+\([a-zA-Z_$][\w$]*\)$/;
+          if (descriptiveIdentifierCallPattern.test(content)) {
+            continue; // Treat as valid simple text
           }
 
           // Early check for commented 'case' or 'default' statements using a regex.

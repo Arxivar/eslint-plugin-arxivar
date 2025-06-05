@@ -25,6 +25,22 @@ ruleTester.run("no-commented-code", rule, {
     {
       code: "/* tutto ok */",
     },
+    // Simple text block comment
+    {
+      code: "//1 (enumService)",
+    },
+    // Simple text block comment
+    {
+      code: "//A (enumService)",
+    },
+    // Simple text block comment
+    {
+      code: "//word (enumService)",
+    },
+    // Simple text block comment
+    {
+      code: "//like in the Notification(Receiving)",
+    },
     // Comment with only punctuation (often used as a separator)
     {
       code: "// ---",
@@ -342,5 +358,23 @@ ruleTester.run("no-commented-code", rule, {
       output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
+        // Test for "word(identifier)" - no space, should be invalid
+    {
+      code: "//word(enumService)",
+      output: "",
+      errors: [{ message: "Code commented forbidden" }],
+    },
+    // Test for "PascalCaseWord(identifier)" - no space, should be invalid
+    {
+      code: "//A(enumService)",
+      output: "",
+      errors: [{ message: "Code commented forbidden" }],
+    },
+    // Test for "PascalCaseWord(PascalCaseWord)" - no space, should be invalid
+    {
+      code: "//Notification(Receiving)",
+      output: "",
+      errors: [{ message: "Code commented forbidden" }],
+    },    
   ],
 });
