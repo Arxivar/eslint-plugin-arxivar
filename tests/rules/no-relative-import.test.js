@@ -1,14 +1,5 @@
-const { RuleTester } = require("eslint");
+const ruleTester = require("../test-utils");
 const rule = require("../../rules/no-relative-import");
-
-// Initialize RuleTester with parser options
-const ruleTester = new RuleTester({
-  parserOptions: {
-    // Using a modern ECMAScript version
-    ecmaVersion: 2018,
-    sourceType: "module",
-  },
-});
 
 ruleTester.run("no-relative-import", rule, {
   valid: [

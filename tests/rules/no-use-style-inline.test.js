@@ -1,17 +1,5 @@
-const { RuleTester } = require("eslint");
+const ruleTester = require("../test-utils");
 const rule = require("../../rules/no-use-style-inline");
-
-// Initialize RuleTester
-const ruleTester = new RuleTester({
-  parserOptions: {
-    ecmaVersion: 2018,
-    sourceType: "module",
-    // Enable JSX parsing for this rule's tests
-    ecmaFeatures: {
-      jsx: true,
-    },
-  },
-});
 
 ruleTester.run("no-use-style-inline", rule, {
   valid: [

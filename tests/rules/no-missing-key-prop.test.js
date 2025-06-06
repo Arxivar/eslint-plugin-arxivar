@@ -1,17 +1,5 @@
-const { RuleTester } = require("eslint");
+const ruleTester = require("../test-utils");
 const rule = require("../../rules/no-missing-key-prop");
-
-// Initialize RuleTester
-const ruleTester = new RuleTester({
-  parserOptions: {
-    ecmaVersion: 2018,
-    sourceType: "module",
-    // Enable JSX parsing as this rule deals with JSX elements
-    ecmaFeatures: {
-      jsx: true,
-    },
-  },
-});
 
 ruleTester.run("no-missing-key-prop", rule, {
   valid: [

@@ -1,14 +1,5 @@
-const { RuleTester } = require("eslint");
+const ruleTester = require("../test-utils");
 const rule = require("../../rules/no-use-internals");
-
-// Initialize RuleTester
-const ruleTester = new RuleTester({
-  parserOptions: {
-    // Standard parser options for modern JavaScript modules
-    ecmaVersion: 2018,
-    sourceType: "module",
-  },
-});
 
 ruleTester.run("no-use-internals", rule, {
   valid: [

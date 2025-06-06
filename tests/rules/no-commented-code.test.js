@@ -1,14 +1,5 @@
-const { RuleTester } = require("eslint");
+const ruleTester = require("../test-utils");
 const rule = require("../../rules/no-commented-code");
-
-// Initialize RuleTester
-const ruleTester = new RuleTester({
-  parserOptions: {
-    // Standard parser options for modern JavaScript modules
-    ecmaVersion: 2018,
-    sourceType: "module",
-  },
-});
 
 ruleTester.run("no-commented-code", rule, {
   valid: [
@@ -104,7 +95,7 @@ ruleTester.run("no-commented-code", rule, {
     // Commented TaggedTemplateExpression (simple - considered trivial)
     {
       code: "// String.raw`foo`",
-    },    
+    },     
     // {
     //   code: `
     //     switch(type) {
@@ -375,6 +366,11 @@ ruleTester.run("no-commented-code", rule, {
       code: "//Notification(Receiving)",
       output: "",
       errors: [{ message: "Code commented forbidden" }],
-    },    
+    },
+    {
+      code: "// const timeControlStartDate: string = DateService.getLocalTimeFormatted(stateComponent.arxCeDocumentTypeDetail.timeControl?.startDate) || '';",
+      output: "",
+      errors: [{ message: "Code commented forbidden" }],
+    },
   ],
 });
