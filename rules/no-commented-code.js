@@ -231,13 +231,14 @@ module.exports = {
       let prevLine;
       for (const comment of commentsToProcess) {
         if (comment.type === "Block") {
-          blocks.push({
-            // Trim the raw value, parsers usually handle leading/trailing space in content.
-            content: comment.value
-              .replace(/^\s*\*/, "")
-              .replace(/\n\s*\*/g, "\n"),
-            loc: { ...comment.loc },
-          });
+          let processedValue = comment.value;
+          // Remove initial space/asterisk if it's a JSDoc-like line start
+          processedValue = processedValue.replace(/^\s*\*/, '');
+          // Remove leading space/asterisks from subsequent newlines
+          processedValue = processedValue.replace(/\n\s*\*/g, '\n');
+          // Remove trailing space/asterisk if it's from a JSDoc-like line end (e.g., " ... *")
+          processedValue = processedValue.replace(/\s*\*$/, '');
+          blocks.push({ content: processedValue, loc: { ...comment.loc } });
           // Reset prevLine as a block comment breaks sequence of line comments
           prevLine = undefined;
         } else if (comment.type === "Line") {

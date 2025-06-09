@@ -32,6 +32,14 @@ ruleTester.run("no-commented-code", rule, {
     {
       code: "//like in the Notification(Receiving)",
     },
+    // Simple text block comment
+    {
+      code: "/** Loading animation while waiting for label, icon or image to display **/",
+    },
+    // Simple text block comment
+    {
+      code: "// Loading animation while waiting for label, icon or image to display",
+    },
     // Comment with only punctuation (often used as a separator)
     {
       code: "// ---",
