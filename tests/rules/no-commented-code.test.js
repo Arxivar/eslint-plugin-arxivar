@@ -333,6 +333,18 @@ ruleTester.run("no-commented-code", rule, {
       output: "",
       errors: [{ message: "Code commented forbidden" }],
     },
+    // Inline comment next to valid code 
+    {
+      code: `regex = removeSurroundChar ? new RegExp(/\$(.+?)\$/g) : new RegExp(/(\$.+?\$)/g);// $VARIABILE$ => $VARIABILE$`,
+      output: `regex = removeSurroundChar ? new RegExp(/\$(.+?)\$/g) : new RegExp(/(\$.+?\$)/g);`,      
+      errors: [{ message: "Code commented forbidden" }],
+    },
+    // Inline comment next to valid code 
+    {
+      code: `regex = removeSurroundChar ? new RegExp(/\$(.+?)\$/g) : new RegExp(/(\$.+?\$)/g); /* $VARIABILE$ => $VARIABILE$ */`,
+      output: `regex = removeSurroundChar ? new RegExp(/\$(.+?)\$/g) : new RegExp(/(\$.+?\$)/g); `,      
+      errors: [{ message: "Code commented forbidden" }],
+    },
     // Commented-out BinaryExpression (comparison)
     {
       code: "// cutItem.params.id !== customPasteParams.stateParams.id",
