@@ -80,6 +80,14 @@ ruleTester.run("no-commented-code", rule, {
     {
       code: "/**Notification (Receiving) */",
     },
+    // JSDoc comment
+    {
+      code: `
+      /**
+	    * Profilation option in case of non-uniqueness
+	    * @value Profilation option in case of non-uniqueness. Can be: (0) use new values, (1) keep old values if new are empty
+	    */`,      
+    },   
     // Comment with a list of identifiers (parses as a SequenceExpression of Identifiers, considered trivial)
     {
       code: "//gridSettings, orderSettings, typesSettings, context",

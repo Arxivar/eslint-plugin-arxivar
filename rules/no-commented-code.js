@@ -231,6 +231,7 @@ module.exports = {
       let prevLine;
       for (const comment of commentsToProcess) {
         if (comment.type === "Block") {
+          const isJSDoc = comment.value.startsWith('*');
           let processedValue = comment.value;
           // Remove initial space/asterisk if it's a JSDoc-like line start
           processedValue = processedValue.replace(/^\s*\*/, '');
@@ -238,7 +239,7 @@ module.exports = {
           processedValue = processedValue.replace(/\n\s*\*/g, '\n');
           // Remove trailing space/asterisk if it's from a JSDoc-like line end (e.g., " ... *")
           processedValue = processedValue.replace(/\s*\*$/, '');
-          blocks.push({ content: processedValue, loc: { ...comment.loc } });
+          blocks.push({ content: processedValue, loc: { ...comment.loc }, isJSDoc });
           // Reset prevLine as a block comment breaks sequence of line comments
           prevLine = undefined;
         } else if (comment.type === "Line") {
@@ -255,6 +256,7 @@ module.exports = {
             blocks.push({
               content: trimmedValue,
               loc: { ...comment.loc },
+              isJSDoc: false, // Line comments are not JSDoc
             });
           }
           prevLine = comment;
@@ -293,7 +295,12 @@ module.exports = {
         // Get comment blocks
         const blocks = toBlocks(comments);
         for (const block of blocks) {
-          const { content: rawContent, loc } = block;
+          const { content: rawContent, loc, isJSDoc } = block;
+
+          if (isJSDoc) {
+            continue; // Skip JSDoc comments, their content is ignored
+          }
+
           const content = rawContent.trim(); // Use trimmed content for checks
 
           // Define the fix function for the current block.
