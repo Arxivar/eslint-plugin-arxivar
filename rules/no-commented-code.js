@@ -231,15 +231,19 @@ module.exports = {
       let prevLine;
       for (const comment of commentsToProcess) {
         if (comment.type === "Block") {
-          const isJSDoc = comment.value.startsWith('*');
+          const isJSDoc = comment.value.startsWith("*");
           let processedValue = comment.value;
           // Remove initial space/asterisk if it's a JSDoc-like line start
-          processedValue = processedValue.replace(/^\s*\*/, '');
+          processedValue = processedValue.replace(/^\s*\*/, "");
           // Remove leading space/asterisks from subsequent newlines
-          processedValue = processedValue.replace(/\n\s*\*/g, '\n');
+          processedValue = processedValue.replace(/\n\s*\*/g, "\n");
           // Remove trailing space/asterisk if it's from a JSDoc-like line end (e.g., " ... *")
-          processedValue = processedValue.replace(/\s*\*$/, '');
-          blocks.push({ content: processedValue, loc: { ...comment.loc }, isJSDoc });
+          processedValue = processedValue.replace(/\s*\*$/, "");
+          blocks.push({
+            content: processedValue,
+            loc: { ...comment.loc },
+            isJSDoc,
+          });
           // Reset prevLine as a block comment breaks sequence of line comments
           prevLine = undefined;
         } else if (comment.type === "Line") {
@@ -331,7 +335,12 @@ module.exports = {
 
           // Early check for commented 'case' or 'default' statements using a regex.
           // This is a specific pattern often found in commented-out switch logic.
-          if (/(?:^|\s)(?:case\s+[^:]*:|default\s*:)/.test(content)) {
+          // The case condition part ([^:\s]+(?:\s+[^:\s]+){0,1}) allows for up to 4 space-separated tokens
+          // (e.g., "case 'some string with spaces':" or "case MY_CONSTANT_VALUE:")
+          // to avoid matching long natural language sentences containing "case ... :".
+          const caseOrDefaultRegex =
+            /(?:^|\s)(?:case\s+([^:\s]+(?:\s+[^:\s]+){0,1})\s*:|default\s*:)/;
+          if (caseOrDefaultRegex.test(content)) {
             context.report({ loc, message: "Code commented forbidden", fix });
             continue;
           }
@@ -370,14 +379,23 @@ module.exports = {
           const wrappedContent = wrapContent(content, nodeAtCommentStart);
           if (wrappedContent) {
             try {
-              parseContentInternal(wrappedContent, currentParserOptions); // Check if wrapped content parses
-              context.report({
-                // If it parses successfully when wrapped, it's considered commented-out code.
-                loc,
-                message: "Code commented forbidden",
-                fix,
-              });
-            } catch (error) {
+              const wrappedProgram = parseContentInternal(
+                wrappedContent,
+                currentParserOptions
+              ); // Check if wrapped content parses
+              // If it parses successfully when wrapped, check if it's also non-trivial.
+              if (
+                !hasEmptyBody(wrappedProgram) &&
+                !isTrivialProgram(wrappedProgram) &&
+                !hasLabeledStatementBody(wrappedProgram) // Assuming this check is also relevant for wrapped content
+              ) {
+                context.report({
+                  loc,
+                  message: "Code commented forbidden",
+                  fix,
+                });
+              }
+            } catch (wrapError) {
               // If parsing the wrapped content also fails, do nothing.
             }
           }
