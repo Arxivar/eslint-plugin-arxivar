@@ -56,6 +56,10 @@ ruleTester.run("no-commented-code", rule, {
     {
       code: "// $VARIABILE$ -> VARIABILE",
     },
+    // Webpack comment command
+    {
+      code: "/* webpackChunkName: \"ui-tree\" */",
+    },
     // Block comment resembling an arrow operation but with non-standard syntax (->)
     {
       code: "/* $VARIABILE$ -> VARIABILE */",
