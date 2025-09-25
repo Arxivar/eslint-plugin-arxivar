@@ -6,5 +6,6 @@ module.exports = {
     "arxivar/no-missing-key-prop": 2,
     "arxivar/no-use-style-inline": 2,
     "arxivar/no-commented-code": 2,
+    "arxivar/no-async-custom-hooks": 2,
   },
 };
