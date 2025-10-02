@@ -21,58 +21,37 @@ ruleTester.run("no-async-custom-hooks", rule, {
         })`,
       options: [{ hooks: ["useUpdate"] }],
     },
+    {
+      code: "useInit(function() {})",
+      options: [{ hooks: ["useInit"] }],
+    },
+    {
+      code: "useInit()",
+      options: [{ hooks: ["useInit"] }],
+    },
+    {
+      code: "useUpdate()",
+      options: [{ hooks: ["useUpdate"] }],
+    },
   ],
   invalid: [
     // Code snippets that SHOULD trigger the rule, with expected error messages
     {
       code: "useInit(async() => {})",
       options: [{ hooks: ["useInit"] }],
-      errors: [
-        {
-          message: `Effect callbacks are synchronous to prevent race conditions. Put the async function inside:
-
-        useInit(() => {
-            async function fetchData() {
-                // You can await here
-                const response = await MyAPI.getData(someId);
-                // ...
-            }
-            fetchData();
-        }, [someId]); // Or [] if effect doesn't need props or state
-        `,
-        },
-      ],
+      errors: [{ messageId: "noAsync", data: { hookName: "useInit" } }],
+    },
+    {
+      code: "useUpdate(async() => {})",
+      options: [{ hooks: ["useUpdate"] }],
+      errors: [{ messageId: "noAsync", data: { hookName: "useUpdate" } }],
     },
     {
       code: "useInit(async() => {}); useUpdate(async() => {})",
       options: [{ hooks: ["useInit", "useUpdate"] }],
       errors: [
-        {
-          message: `Effect callbacks are synchronous to prevent race conditions. Put the async function inside:
-
-        useInit(() => {
-            async function fetchData() {
-                // You can await here
-                const response = await MyAPI.getData(someId);
-                // ...
-            }
-            fetchData();
-        }, [someId]); // Or [] if effect doesn't need props or state
-        `,
-        },
-        {
-          message: `Effect callbacks are synchronous to prevent race conditions. Put the async function inside:
-
-        useUpdate(() => {
-            async function fetchData() {
-                // You can await here
-                const response = await MyAPI.getData(someId);
-                // ...
-            }
-            fetchData();
-        }, [someId]); // Or [] if effect doesn't need props or state
-        `,
-        },
+        { messageId: "noAsync", data: { hookName: "useInit" } },
+        { messageId: "noAsync", data: { hookName: "useUpdate" } },
       ],
     },
     {
@@ -83,21 +62,12 @@ ruleTester.run("no-async-custom-hooks", rule, {
             await fetchData();
         })`,
       options: [{ hooks: ["useUpdate"] }],
-      errors: [
-        {
-          message: `Effect callbacks are synchronous to prevent race conditions. Put the async function inside:
-
-        useUpdate(() => {
-            async function fetchData() {
-                // You can await here
-                const response = await MyAPI.getData(someId);
-                // ...
-            }
-            fetchData();
-        }, [someId]); // Or [] if effect doesn't need props or state
-        `,
-        },
-      ],
+      errors: [{ messageId: "noAsync", data: { hookName: "useUpdate" } }],
+    },
+    {
+      code: "useInit(async function() {})",
+      options: [{ hooks: ["useInit"] }],
+      errors: [{ messageId: "noAsync", data: { hookName: "useInit" } }],
     },
   ],
 });
